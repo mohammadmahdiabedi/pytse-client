@@ -259,6 +259,23 @@ class Ticker:
         )[0]
         return self._flow_name(flow_code)
 
+
+# =============================================================================================================================
+
+    @property
+    def tr(self) -> float:
+        ticker_info = self.get_ticker_real_time_info_response()
+        tr1 = (ticker_info.high_price - ticker_info.low_price)
+        tr2 = (ticker_info.high_price -
+               ticker_info.yesterday_price).abs()
+        tr3 = (ticker_info.low_price -
+               ticker_info.yesterday_price).abs()
+        return max(tr1, tr2, tr3)
+
+
+# ==============================================================================================================================
+
+
     @property
     @catch(IndexError, ValueError)
     def sta_max(self) -> float:

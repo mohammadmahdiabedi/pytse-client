@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import re
+from xml.dom.minidom import Element
 import jdatetime
 import pandas as pd
 from pytse_client import config, symbols_data, translations, tse_settings
@@ -78,7 +79,7 @@ def download(
     include_jdate: bool = False,
     base_path: str = config.DATA_BASE_PATH,
     adjust: bool = False,
-) -> Dict[str, pd.DataFrame]:
+) -> Dict[str, Dict[jdatetime.datetime, pd.DataFrame]]:
     if symbols == "all":
         symbols = symbols_data.all_symbols()
     elif isinstance(symbols, str):
@@ -135,6 +136,11 @@ def download(
 
             if adjust:
                 df_list[symbol] = adjust_price(df_list[symbol])
+
+            element = df_list.pop(symbol)
+            element = element.set_index(
+                'date', drop=True).to_dict(orient='index')
+            df_list[symbol] = element
 
             if write_to_csv:
                 Path(base_path).mkdir(parents=True, exist_ok=True)
@@ -482,3 +488,7 @@ def get_symbol_info(symbol_name: str):
     if market_symbol.index is None:
         return None
     return market_symbol
+
+
+a = download("آرمان", write_to_csv=False)
+print(a["آرمان"])
